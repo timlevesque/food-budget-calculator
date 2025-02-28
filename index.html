@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Cost Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-green-500 p-6">
+    <div class="max-w-3xl mx-auto bg-white p-6 rounded-lg ">
+        <h1 class="text-3xl font-bold mb-4 text-gray-700">What Should Your Monthly Grocery Budget Be?</h1>
+        <p class="text-gray-600 mb-6">Enter the number of family members in each age/sex category, then click "Calculate" to see the estimated monthly food cost for all three plans.</p>
+
+        <div class="overflow-x-auto">
+            <table class="w-full border-2 border-green-500">
+                <thead>
+                    <tr class="bg-green-500 text-white">
+                        <th class="p-2 text-left">Category</th>
+                        <th class="p-2 text-left"># of People</th>
+                    </tr>
+                </thead>
+                <tbody id="usdaTable" class="bg-white"></tbody>
+            </table>
+        </div>
+
+        <button onclick="calculateAllPlans()" class="mt-4 bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">Calculate</button>
+
+        <div id="results" class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+    </div>
+
+    <script>
+        const usdaCosts = {
+            "child-1": { label: "Child (1 year)", low: 157.40, moderate: 177.80, liberal: 216.10 },
+            "child-2-3": { label: "Child (2–3 years)", low: 164.10, moderate: 197.60, liberal: 240.20 },
+            "child-4-5": { label: "Child (4–5 years)", low: 170.80, moderate: 210.10, liberal: 255.40 },
+            "child-6-8": { label: "Child (6–8 years)", low: 245.10, moderate: 289.00, liberal: 338.60 },
+            "child-9-11": { label: "Child (9–11 years)", low: 258.40, moderate: 331.90, liberal: 387.40 },
+            "male-12-13": { label: "Male (12–13 years)", low: 301.50, moderate: 374.20, liberal: 438.30 },
+            "male-14-18": { label: "Male (14–18 years)", low: 307.20, moderate: 383.80, liberal: 447.80 },
+            "male-19-50": { label: "Male (19–50 years)", low: 303.80, moderate: 380.40, liberal: 463.40 },
+            "male-51-70": { label: "Male (51–70 years)", low: 285.20, moderate: 357.20, liberal: 427.10 },
+            "male-71+": { label: "Male (71+ years)", low: 283.40, moderate: 348.40, liberal: 426.50 },
+            "female-12-13": { label: "Female (12–13 years)", low: 256.80, moderate: 305.60, liberal: 380.20 },
+            "female-14-18": { label: "Female (14–18 years)", low: 258.50, moderate: 308.10, liberal: 381.00 },
+            "female-19-50": { label: "Female (19–50 years)", low: 263.80, moderate: 321.30, liberal: 410.00 },
+            "female-51-70": { label: "Female (51–70 years)", low: 256.40, moderate: 316.30, liberal: 379.40 },
+            "female-71+": { label: "Female (71+ years)", low: 256.40, moderate: 314.70, liberal: 375.80 }
+        };
+
+        const tbody = document.querySelector("#usdaTable");
+        for (const key in usdaCosts) {
+            const { label } = usdaCosts[key];
+            const row = document.createElement("tr");
+            row.className = "border-b border-gray-300";
+
+            const tdLabel = document.createElement("td");
+            tdLabel.textContent = label;
+            tdLabel.className = "p-2";
+
+            const tdInput = document.createElement("td");
+            const input = document.createElement("input");
+            input.type = "number";
+            input.min = "0";
+            input.value = "0";
+            input.className = "category-input w-16 p-1 border border-gray-300 rounded";
+            input.dataset.key = key;
+            tdInput.appendChild(input);
+            tdInput.className = "p-2";
+
+            row.appendChild(tdLabel);
+            row.appendChild(tdInput);
+            tbody.appendChild(row);
+        }
+
+        function calculateAllPlans() {
+            let totalPeople = 0, lowTotal = 0, moderateTotal = 0, liberalTotal = 0;
+            const inputs = document.querySelectorAll(".category-input");
+            inputs.forEach(inp => {
+                const count = parseFloat(inp.value) || 0;
+                if (count > 0) {
+                    totalPeople += count;
+                    const costObj = usdaCosts[inp.dataset.key];
+                    lowTotal += costObj.low * count;
+                    moderateTotal += costObj.moderate * count;
+                    liberalTotal += costObj.liberal * count;
+                }
+            });
+            document.getElementById("results").innerHTML = totalPeople > 0 ?
+                `<div class="bg-white p-4 rounded-lg border-2 border-green-500  text-center">
+                    <h2 class="text-lg font-bold">Low-Cost Plan</h2>
+                    <p>$${lowTotal.toFixed(2)}</p>
+                    <button class="mt-2 bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Add to Budget</button>
+                </div>
+                <div class="bg-white p-4 rounded-lg border-2 border-green-500 text-center">
+                    <h2 class="text-lg font-bold">Moderate-Cost Plan</h2>
+                    <p>$${moderateTotal.toFixed(2)}</p>
+                    <button class="mt-2 bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Add to Budget</button>
+                </div>
+                <div class="bg-white p-4 rounded-lg border-2 border-green-500  text-center">
+                    <h2 class="text-lg font-bold">Liberal Plan</h2>
+                    <p>$${liberalTotal.toFixed(2)}</p>
+                    <button class="mt-2 bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Add to Budget</button>
+                </div>`
+                : "<div class='text-red-500'>No people entered.</div>";
+        }
+    </script>
+</body>
+</html>
