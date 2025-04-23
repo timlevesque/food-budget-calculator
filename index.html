@@ -1,114 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Food Cost Calculator</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Step-by-Step Grocery Budget</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .select-arrow {
+      background-image: url("data:image/svg+xml,%3Csvg fill='none' stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      background-size: 1rem 1rem;
+    }
+      .green{
+        color:#35bd59;
+    }
+    .bg-green {
+    background-color: #35bd59;;
+  }
+
+  .border-green {
+    border-color: #35bd59;
+  }
+  </style>
+
+  
 </head>
-<body class="bg-green-500 p-6">
-    <div class="max-w-3xl mx-auto bg-white p-6 rounded-lg ">
-        <h1 class="text-3xl font-bold mb-4 text-gray-700">What Should Your Monthly Grocery Budget Be?</h1>
-        <p class="text-gray-600 mb-6">Enter the number of family members in each age/sex category, then click "Calculate" to see the estimated monthly food cost for all three plans.</p>
+<body class="">
 
-        <div class="overflow-x-auto">
-            <table class="w-full border-2 border-green-500">
-                <thead>
-                    <tr class="bg-green-500 text-white">
-                        <th class="p-2 text-left">Category</th>
-                        <th class="p-2 text-left"># of People</th>
-                    </tr>
-                </thead>
-                <tbody id="usdaTable" class="bg-white"></tbody>
-            </table>
-        </div>
+  <div class="w-full mx-auto bg-white p-8">
+    <p class="mb-6 text-3xl lg:text-4xl font-bold green">What Should Your Monthly Grocery Budget Be?</p>
 
-        <button onclick="calculateAllPlans()" class="mt-4 bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">Calculate</button>
-
-        <div id="results" class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+    <!-- Step 1 -->
+    <div id="step-1" class="step">
+      <p class="text-sm text-gray-500 mb-1">Step 1/3</p>
+      <h1 class="text-2xl font-bold text-gray-700 mb-4">How many people are in your household?</h1>
+      <input type="number" id="numPeople" min="1" value="1" class="w-24 border border-gray-300 rounded p-2 mb-4 block">
+      <button onclick="goToStep2()" class="mt-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">Next</button>
     </div>
 
-    <script>
-        const usdaCosts = {
-            "child-1": { label: "Child (1 year)", low: 157.40, moderate: 177.80, liberal: 216.10 },
-            "child-2-3": { label: "Child (2–3 years)", low: 164.10, moderate: 197.60, liberal: 240.20 },
-            "child-4-5": { label: "Child (4–5 years)", low: 170.80, moderate: 210.10, liberal: 255.40 },
-            "child-6-8": { label: "Child (6–8 years)", low: 245.10, moderate: 289.00, liberal: 338.60 },
-            "child-9-11": { label: "Child (9–11 years)", low: 258.40, moderate: 331.90, liberal: 387.40 },
-            "male-12-13": { label: "Male (12–13 years)", low: 301.50, moderate: 374.20, liberal: 438.30 },
-            "male-14-18": { label: "Male (14–18 years)", low: 307.20, moderate: 383.80, liberal: 447.80 },
-            "male-19-50": { label: "Male (19–50 years)", low: 303.80, moderate: 380.40, liberal: 463.40 },
-            "male-51-70": { label: "Male (51–70 years)", low: 285.20, moderate: 357.20, liberal: 427.10 },
-            "male-71+": { label: "Male (71+ years)", low: 283.40, moderate: 348.40, liberal: 426.50 },
-            "female-12-13": { label: "Female (12–13 years)", low: 256.80, moderate: 305.60, liberal: 380.20 },
-            "female-14-18": { label: "Female (14–18 years)", low: 258.50, moderate: 308.10, liberal: 381.00 },
-            "female-19-50": { label: "Female (19–50 years)", low: 263.80, moderate: 321.30, liberal: 410.00 },
-            "female-51-70": { label: "Female (51–70 years)", low: 256.40, moderate: 316.30, liberal: 379.40 },
-            "female-71+": { label: "Female (71+ years)", low: 256.40, moderate: 314.70, liberal: 375.80 }
-        };
+    <!-- Step 2 -->
+    <div id="step-2" class="hidden step">
+      <p class="text-sm text-gray-500 mb-1">Step 2/3</p>
+      <h1 class="text-2xl font-bold text-gray-700 mb-4">Enter age and gender for each person</h1>
+      <div id="personInputs" class="space-y-4 mb-4"></div>
+      <button onclick="goToStep3()" class="mt-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">Calculate Budget</button>
+    </div>
 
-        const tbody = document.querySelector("#usdaTable");
-        for (const key in usdaCosts) {
-            const { label } = usdaCosts[key];
-            const row = document.createElement("tr");
-            row.className = "border-b border-gray-300";
+    <!-- Step 3 -->
+    <div id="step-3" class="hidden step">
+      <p class="text-sm text-gray-500 mb-1">Step 3/3</p>
+      <h1 class="text-2xl font-bold text-gray-700 mb-4">Estimated Monthly Cost</h1>
+      <div id="results" class="md:gap-3 md:flex space-y-4 md:space-y-0"></div>
+      <button onclick="location.reload()" class="mt-6 text-sm text-green-700 underline">Start Over</button>
+    </div>
+  </div>
 
-            const tdLabel = document.createElement("td");
-            tdLabel.textContent = label;
-            tdLabel.className = "p-2";
+  <script>
+    const usdaCosts = {
+      "child-1": { label: "Child (1 year)", low: 157.40, moderate: 177.80, liberal: 216.10 },
+      "child-2-3": { label: "Child (2–3 years)", low: 164.10, moderate: 197.60, liberal: 240.20 },
+      "child-4-5": { label: "Child (4–5 years)", low: 170.80, moderate: 210.10, liberal: 255.40 },
+      "child-6-8": { label: "Child (6–8 years)", low: 245.10, moderate: 289.00, liberal: 338.60 },
+      "child-9-11": { label: "Child (9–11 years)", low: 258.40, moderate: 331.90, liberal: 387.40 },
+      "male-12-13": { label: "Male (12–13 years)", low: 301.50, moderate: 374.20, liberal: 438.30 },
+      "male-14-18": { label: "Male (14–18 years)", low: 307.20, moderate: 383.80, liberal: 447.80 },
+      "male-19-50": { label: "Male (19–50 years)", low: 303.80, moderate: 380.40, liberal: 463.40 },
+      "male-51-70": { label: "Male (51–70 years)", low: 285.20, moderate: 357.20, liberal: 427.10 },
+      "male-71+": { label: "Male (71+ years)", low: 283.40, moderate: 348.40, liberal: 426.50 },
+      "female-12-13": { label: "Female (12–13 years)", low: 256.80, moderate: 305.60, liberal: 380.20 },
+      "female-14-18": { label: "Female (14–18 years)", low: 258.50, moderate: 308.10, liberal: 381.00 },
+      "female-19-50": { label: "Female (19–50 years)", low: 263.80, moderate: 321.30, liberal: 410.00 },
+      "female-51-70": { label: "Female (51–70 years)", low: 256.40, moderate: 316.30, liberal: 379.40 },
+      "female-71+": { label: "Female (71+ years)", low: 256.40, moderate: 314.70, liberal: 375.80 }
+    };
 
-            const tdInput = document.createElement("td");
-            const input = document.createElement("input");
-            input.type = "number";
-            input.min = "0";
-            input.value = "0";
-            input.className = "category-input w-16 p-1 border border-gray-300 rounded";
-            input.dataset.key = key;
-            tdInput.appendChild(input);
-            tdInput.className = "p-2";
+    function goToStep2() {
+      const num = parseInt(document.getElementById('numPeople').value);
+      const container = document.getElementById('personInputs');
+      container.innerHTML = '';
 
-            row.appendChild(tdLabel);
-            row.appendChild(tdInput);
-            tbody.appendChild(row);
+      for (let i = 0; i < num; i++) {
+        const div = document.createElement('div');
+        div.className = "flex gap-2 items-center";
+
+        const select = document.createElement('select');
+        select.className = "flex-1 border p-2 pr-10 rounded appearance-none select-arrow";
+        select.innerHTML = `<option value="">Select Age/Gender</option>` +
+          Object.entries(usdaCosts).map(([key, val]) => `<option value="${key}">${val.label}</option>`).join('');
+        container.appendChild(div);
+        div.appendChild(document.createTextNode(`Person ${i + 1}:`));
+        div.appendChild(select);
+      }
+
+      document.getElementById('step-1').classList.add('hidden');
+      document.getElementById('step-2').classList.remove('hidden');
+    }
+
+    function goToStep3() {
+      const selects = document.querySelectorAll('#personInputs select');
+      let lowTotal = 0, moderateTotal = 0, liberalTotal = 0;
+      let valid = true;
+
+      selects.forEach(sel => {
+        const value = sel.value;
+        if (value && usdaCosts[value]) {
+          const cost = usdaCosts[value];
+          lowTotal += cost.low;
+          moderateTotal += cost.moderate;
+          liberalTotal += cost.liberal;
+        } else {
+          valid = false;
         }
+      });
 
-        function calculateAllPlans() {
-            let totalPeople = 0, lowTotal = 0, moderateTotal = 0, liberalTotal = 0;
-            const inputs = document.querySelectorAll(".category-input");
-            inputs.forEach(inp => {
-                const count = parseFloat(inp.value) || 0;
-                if (count > 0) {
-                    totalPeople += count;
-                    const costObj = usdaCosts[inp.dataset.key];
-                    lowTotal += costObj.low * count;
-                    moderateTotal += costObj.moderate * count;
-                    liberalTotal += costObj.liberal * count;
-                }
-            });
-if (totalPeople > 0) {
-    document.getElementById("results").innerHTML =
-        '<div class="bg-white p-4 rounded-lg border-2 border-green-500 text-center">' +
-            '<h2 class="text-lg font-bold">Low-Cost Plan</h2>' +
-            '<p>$' + lowTotal.toFixed(2) + '</p>' +
-            '<a href="https://everydollar.com/app/budget/?food=' + lowTotal.toFixed(2) + '" class="mt-2 bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Add to Budget</a>' +
-        '</div>' +
+      if (!valid) {
+        alert("Please select a value for each person.");
+        return;
+      }
 
-        '<div class="bg-white p-4 rounded-lg border-2 border-green-500 text-center">' +
-            '<h2 class="text-lg font-bold">Moderate-Cost Plan</h2>' +
-            '<p>$' + moderateTotal.toFixed(2) + '</p>' +
-            '<a href="https://everydollar.com/app/budget/?food=' + moderateTotal.toFixed(2) + '" class="mt-2 bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Add to Budget</a>' +
-        '</div>' +
+      document.getElementById('results').innerHTML = `
+        <div class="border-2 border-green 0 p-4 rounded-lg text-center flex-1">
+          <h2 class="font-bold text-lg">Low-Cost Plan</h2>
+          <p class="text-xl text-gray-700 mb-3">$${lowTotal.toFixed(2)}</p>
+          <a target="_blank" href="https://everydollar.com/app/budget/?food=${lowTotal.toFixed(2)}" class=" bg-green text-white px-4 py-2 rounded-lg hover:bg-green-600">Add to Budget</a>
+        </div>
+        <div class="border-2 border-green p-4 rounded-lg text-center flex-1">
+          <h2 class="font-bold text-lg">Moderate-Cost Plan</h2>
+          <p class="text-xl text-gray-700 mb-3">$${moderateTotal.toFixed(2)}</p>
+          <a target="_blank" href="https://everydollar.com/app/budget/?food=${moderateTotal.toFixed(2)}" class=" bg-green text-white px-4 py-2 rounded-lg hover:bg-green-600">Add to Budget</a>
+        </div>
+        <div class="border-2 border-green p-4 rounded-lg text-center flex-1">
+          <h2 class="font-bold text-lg">High-Cost Plan</h2>
+          <p class="text-xl text-gray-700 mb-3">$${liberalTotal.toFixed(2)}</p>
+          <a target="_blank" href="https://everydollar.com/app/budget/?food=${liberalTotal.toFixed(2)}" class="bg-green text-white px-4 py-2 rounded-lg hover:bg-green-600">Add to Budget</a>
+        </div>
+      `;
 
-        '<div class="bg-white p-4 rounded-lg border-2 border-green-500 text-center">' +
-            '<h2 class="text-lg font-bold">Liberal Plan</h2>' +
-            '<p>$' + liberalTotal.toFixed(2) + '</p>' +
-            '<a href="https://everydollar.com/app/budget/?food=' + liberalTotal.toFixed(2) + '" class="mt-2 bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Add to Budget</a>' +
-        '</div>';
-} else {
-    document.getElementById("results").innerHTML = "<div class='text-red-500'>No people entered.</div>";
-}
-        }
-
-    </script>
+      document.getElementById('step-2').classList.add('hidden');
+      document.getElementById('step-3').classList.remove('hidden');
+    }
+    
+  </script>
 </body>
 </html>
