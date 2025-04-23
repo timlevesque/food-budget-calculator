@@ -12,19 +12,16 @@
       background-position: right 0.75rem center;
       background-size: 1rem 1rem;
     }
-      .green{
-        color:#35bd59;
+    .green {
+      color: #35bd59;
     }
     .bg-green {
-    background-color: #35bd59;;
-  }
-
-  .border-green {
-    border-color: #35bd59;
-  }
+      background-color: #35bd59;
+    }
+    .border-green {
+      border-color: #35bd59;
+    }
   </style>
-
-  
 </head>
 <body class="">
 
@@ -39,12 +36,11 @@
       <button onclick="goToStep2()" class="mt-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">Next</button>
     </div>
 
-    <!-- Step 2 -->
+    <!-- Step 2 (Per Person) -->
     <div id="step-2" class="hidden step">
       <p class="text-sm text-gray-500 mb-1">Step 2/3</p>
       <h1 class="text-2xl font-bold text-gray-700 mb-4">Enter age and gender for each person</h1>
       <div id="personInputs" class="space-y-4 mb-4"></div>
-      <button onclick="goToStep3()" class="mt-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">Calculate Budget</button>
     </div>
 
     <!-- Step 3 -->
@@ -75,60 +71,83 @@
       "female-71+": { label: "Female (71+ years)", low: 256.40, moderate: 314.70, liberal: 375.80 }
     };
 
+    let currentPersonIndex = 0;
+    let numPeople = 1;
+    let personSelections = [];
+
     function goToStep2() {
-      const num = parseInt(document.getElementById('numPeople').value);
-      const container = document.getElementById('personInputs');
-      container.innerHTML = '';
-
-      for (let i = 0; i < num; i++) {
-        const div = document.createElement('div');
-        div.className = "flex gap-2 items-center";
-
-        const select = document.createElement('select');
-        select.className = "flex-1 border p-2 pr-10 rounded appearance-none select-arrow";
-        select.innerHTML = `<option value="">Select Age/Gender</option>` +
-          Object.entries(usdaCosts).map(([key, val]) => `<option value="${key}">${val.label}</option>`).join('');
-        container.appendChild(div);
-        div.appendChild(document.createTextNode(`Person ${i + 1}:`));
-        div.appendChild(select);
-      }
-
+      numPeople = parseInt(document.getElementById('numPeople').value);
+      personSelections = new Array(numPeople);
+      currentPersonIndex = 0;
+      showPersonStep(currentPersonIndex);
       document.getElementById('step-1').classList.add('hidden');
       document.getElementById('step-2').classList.remove('hidden');
     }
 
-    function goToStep3() {
-      const selects = document.querySelectorAll('#personInputs select');
-      let lowTotal = 0, moderateTotal = 0, liberalTotal = 0;
-      let valid = true;
+    function showPersonStep(index) {
+      const container = document.getElementById('personInputs');
+      container.innerHTML = '';
 
-      selects.forEach(sel => {
-        const value = sel.value;
-        if (value && usdaCosts[value]) {
-          const cost = usdaCosts[value];
-          lowTotal += cost.low;
-          moderateTotal += cost.moderate;
-          liberalTotal += cost.liberal;
-        } else {
-          valid = false;
+      const div = document.createElement('div');
+      div.className = " gap-2 items-center";
+
+      const select = document.createElement('select');
+      select.className = "flex-1 border p-2 pr-10 rounded appearance-none select-arrow";
+      select.innerHTML = `<option value="">Select Age/Gender</option>` +
+        Object.entries(usdaCosts).map(([key, val]) => `<option value="${key}">${val.label}</option>`).join('');
+
+      if (personSelections[index]) select.value = personSelections[index];
+
+      container.appendChild(div);
+      const p = document.createElement('p');
+        p.textContent = `Person ${index + 1}`;
+        p.style.fontWeight = 'bold';
+        div.appendChild(p);
+      div.appendChild(select);
+
+      const button = document.createElement('button');
+      button.textContent = index === numPeople - 1 ? 'Calculate Budget' : 'Next';
+      button.className = "mt-4 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600";
+      button.onclick = () => {
+        if (!select.value) {
+          alert('Please select an age/gender');
+          return;
         }
-      });
+        personSelections[index] = select.value;
 
-      if (!valid) {
-        alert("Please select a value for each person.");
-        return;
+        if (index === numPeople - 1) {
+          showResults();
+        } else {
+          currentPersonIndex++;
+          showPersonStep(currentPersonIndex);
+        }
+      };
+      container.appendChild(button);
+    }
+
+    function showResults() {
+      let lowTotal = 0, moderateTotal = 0, liberalTotal = 0;
+
+      for (let value of personSelections) {
+        const cost = usdaCosts[value];
+        lowTotal += cost.low;
+        moderateTotal += cost.moderate;
+        liberalTotal += cost.liberal;
       }
 
+      document.getElementById('step-2').classList.add('hidden');
+      document.getElementById('step-3').classList.remove('hidden');
+
       document.getElementById('results').innerHTML = `
-        <div class="border-2 border-green 0 p-4 rounded-lg text-center flex-1">
+        <div class="border-2 border-green p-4 rounded-lg text-center flex-1">
           <h2 class="font-bold text-lg">Low-Cost Plan</h2>
           <p class="text-xl text-gray-700 mb-3">$${lowTotal.toFixed(2)}</p>
-          <a target="_blank" href="https://everydollar.com/app/budget/?food=${lowTotal.toFixed(2)}" class=" bg-green text-white px-4 py-2 rounded-lg hover:bg-green-600">Add to Budget</a>
+          <a target="_blank" href="https://everydollar.com/app/budget/?food=${lowTotal.toFixed(2)}" class="bg-green text-white px-4 py-2 rounded-lg hover:bg-green-600">Add to Budget</a>
         </div>
         <div class="border-2 border-green p-4 rounded-lg text-center flex-1">
           <h2 class="font-bold text-lg">Moderate-Cost Plan</h2>
           <p class="text-xl text-gray-700 mb-3">$${moderateTotal.toFixed(2)}</p>
-          <a target="_blank" href="https://everydollar.com/app/budget/?food=${moderateTotal.toFixed(2)}" class=" bg-green text-white px-4 py-2 rounded-lg hover:bg-green-600">Add to Budget</a>
+          <a target="_blank" href="https://everydollar.com/app/budget/?food=${moderateTotal.toFixed(2)}" class="bg-green text-white px-4 py-2 rounded-lg hover:bg-green-600">Add to Budget</a>
         </div>
         <div class="border-2 border-green p-4 rounded-lg text-center flex-1">
           <h2 class="font-bold text-lg">High-Cost Plan</h2>
@@ -136,11 +155,7 @@
           <a target="_blank" href="https://everydollar.com/app/budget/?food=${liberalTotal.toFixed(2)}" class="bg-green text-white px-4 py-2 rounded-lg hover:bg-green-600">Add to Budget</a>
         </div>
       `;
-
-      document.getElementById('step-2').classList.add('hidden');
-      document.getElementById('step-3').classList.remove('hidden');
     }
-    
   </script>
 </body>
 </html>
